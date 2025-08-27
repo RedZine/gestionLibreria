@@ -9,5 +9,6 @@ package gestionlibreria.model;
  * @author Juaaan
  */
 public class Venta {
+    private 
     
 }

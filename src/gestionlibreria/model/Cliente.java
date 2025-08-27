@@ -9,5 +9,9 @@ package gestionlibreria.model;
  * @author Juaaan
  */
 public class Cliente {
+    private String idCliente;
+    private String nombreCliente;
+    private String correo;
+    private String direccion;
     
 }
