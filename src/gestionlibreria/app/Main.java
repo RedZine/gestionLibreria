@@ -18,10 +18,10 @@ public class Main {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String op;
         do {
-            System.out.println("\n=== Gestión Librería (SIA 1.1–1.10) ===");
+            System.out.println("\n=== Gestión Librería ===");
             System.out.println("1) Insertar LIBRO en una CATEGORÍA");
-            System.out.println("2) Listar LIBROS de una CATEGORÍA");
-            System.out.println("3) Listar CATEGORÍAS");
+            System.out.println("2) Mostrar LIBROS de una CATEGORÍA");
+            System.out.println("3) Mostrar CATEGORÍAS");
             System.out.println("4) Sugerencias por categoría (relacionados)");
             System.out.println("0) Salir");
             System.out.print("> ");
