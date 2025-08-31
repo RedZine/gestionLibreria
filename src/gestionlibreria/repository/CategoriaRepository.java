@@ -2,53 +2,89 @@ package gestionlibreria.repository;
 
 import gestionlibreria.model.Categoria;
 import gestionlibreria.model.Libro;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Hashtable;
 
 public class CategoriaRepository {
-    private final ArrayList<Categoria> categorias = new ArrayList<>();           // 1ª colección
-    private final Map<String, Libro> indiceIsbn = new HashMap<>();               // Map ISBN -> Libro
-    private final Map<String, ArrayList<Libro>> porCategoria = new HashMap<>();  // Map categoria -> libros
+    private final ArrayList<Categoria> listaCategorias = new ArrayList<Categoria>();
+    private final Hashtable<String, Libro> indiceLibrosPorIsbn = new Hashtable<String, Libro>();
+    private final Hashtable<String, ArrayList<Libro>> indiceLibrosPorCategoria = new Hashtable<String, ArrayList<Libro>>();
 
-    // ---- Categorías ----
-    public void agregarCategoria(Categoria c){ categorias.add(c); }
-    public ArrayList<Categoria> listarCategorias(){ return categorias; }
-    public Categoria buscarPorId(int id){
-        for (Categoria c : categorias) if (c.getId()==id) return c;
+    public void agregarCategoria(Categoria categoria) {
+        listaCategorias.add(categoria);
+    }
+
+    public ArrayList<Categoria> listarCategorias() {
+        return listaCategorias;
+    }
+
+    public Categoria buscarCategoriaPorId(int idCategoria) {
+        for (Categoria categoria : listaCategorias) {
+            if (categoria.getId() == idCategoria) {
+                return categoria;
+            }
+        }
         return null;
     }
 
-    // ---- Libros (2ª colección anidada) ----
-    // Sobrecarga SIA1.6
-    public boolean agregarLibro(int idCategoria, Libro l){
-        Categoria c = buscarPorId(idCategoria);
-        if (c==null || l==null) return false;
-        c.getLibros().add(l);
-        actualizarIndices(l);
+    public boolean agregarLibro(int idCategoria, Libro libro) {
+        Categoria categoria = buscarCategoriaPorId(idCategoria);
+        if (categoria == null || libro == null) return false;
+
+        categoria.getLibros().add(libro);
+        actualizarIndices(libro);
         return true;
     }
+
     public boolean agregarLibro(int idCategoria, String isbn, String titulo, String autor,
-                                String categoria, double precio, int stock){
-        return agregarLibro(idCategoria, new Libro(isbn,titulo,autor,categoria,precio,stock));
+                                String categoriaTexto, double precio, int stock) {
+        Libro libro = new Libro(isbn, titulo, autor, categoriaTexto, precio, stock);
+        return agregarLibro(idCategoria, libro);
     }
 
-    public ArrayList<Libro> listarLibrosDeCategoria(int idCategoria){
-        Categoria c = buscarPorId(idCategoria);
-        return (c==null) ? new ArrayList<>() : c.getLibros();
+    public ArrayList<Libro> listarLibrosDeCategoria(int idCategoria) {
+        Categoria categoria = buscarCategoriaPorId(idCategoria);
+        if (categoria == null) {
+            return new ArrayList<Libro>();
+        }
+        return categoria.getLibros();
     }
 
-    public Libro buscarLibroPorIsbn(String isbn){ return indiceIsbn.get(isbn); }
-
-    public ArrayList<Libro> sugerenciasPorCategoria(String categoria, String excluirIsbn){
-        ArrayList<Libro> base = porCategoria.getOrDefault(categoria, new ArrayList<>());
-        ArrayList<Libro> out = new ArrayList<>();
-        for (Libro l : base) if (!l.getIsbn().equals(excluirIsbn)) out.add(l);
-        return out;
+    public Libro buscarLibroPorIsbn(String isbn) {
+        return indiceLibrosPorIsbn.get(isbn);
     }
 
-    private void actualizarIndices(Libro l){
-        indiceIsbn.put(l.getIsbn(), l);
-        porCategoria.computeIfAbsent(l.getCategoria(), k -> new ArrayList<>()).add(l);
+    public ArrayList<Libro> sugerenciasPorCategoria(String nombreCategoria, String isbnExcluir) {
+        ArrayList<Libro> lista = indiceLibrosPorCategoria.get(nombreCategoria);
+        ArrayList<Libro> resultado = new ArrayList<Libro>();
+        if (lista == null) return resultado;
+
+        for (Libro libro : lista) {
+            if (!libro.getIsbn().equals(isbnExcluir)) {
+                resultado.add(libro);
+            }
+        }
+        return resultado;
+    }
+
+    public boolean disminuirStock(String isbn, int cantidad) {
+        Libro libro = indiceLibrosPorIsbn.get(isbn);
+        if (libro == null) return false;
+        if (libro.getStock() < cantidad) return false;
+        libro.setStock(libro.getStock() - cantidad);
+        return true;
+    }
+
+    private void actualizarIndices(Libro libro) {
+        indiceLibrosPorIsbn.put(libro.getIsbn(), libro);
+
+        String categoria = libro.getCategoria();
+        ArrayList<Libro> listaPorCat = indiceLibrosPorCategoria.get(categoria);
+        if (listaPorCat == null) {
+            listaPorCat = new ArrayList<Libro>();
+            indiceLibrosPorCategoria.put(categoria, listaPorCat);
+        }
+        listaPorCat.add(libro);
     }
 }

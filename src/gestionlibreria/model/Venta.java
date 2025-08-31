@@ -6,8 +6,8 @@ public class Venta {
     private int id;
     private int idCliente;
     private String fecha;
-    private String medioPago;   // "EFECTIVO", "TARJETA", etc.
-    private ArrayList<ItemVenta> items = new ArrayList<>();
+    private String medioPago;
+    private ArrayList<ItemVenta> items = new ArrayList<ItemVenta>();
 
     public Venta() {}
 
@@ -18,7 +18,6 @@ public class Venta {
         this.medioPago = medioPago;
     }
 
-    // --- Sobrecarga de métodos (SIA1.6) ---
     public void agregarItem(ItemVenta item) {
         items.add(item);
     }
@@ -27,14 +26,14 @@ public class Venta {
         items.add(new ItemVenta(isbn, cantidad, precioUnitario));
     }
 
-    // --- Cálculo de totales ---
     public double getSubtotal() {
-        double total = 0;
-        for (ItemVenta it : items) total += it.getSubtotal();
+        double total = 0.0;
+        for (ItemVenta it : items) {
+            total += it.getSubtotal();
+        }
         return total;
     }
 
-    // --- Getters y Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -50,3 +49,4 @@ public class Venta {
     public ArrayList<ItemVenta> getItems() { return items; }
     public void setItems(ArrayList<ItemVenta> items) { this.items = items; }
 }
+

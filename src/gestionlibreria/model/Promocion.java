@@ -3,9 +3,9 @@ package gestionlibreria.model;
 public class Promocion {
     private int id;
     private String tipo;       // "PORCENTAJE" o "FIJO"
-    private String alcance;    // "CATEGORIA" o "GENERAL"
-    private String categoria;  // opcional, si aplica a una categoría
-    private double valor;      // % o monto fijo
+    private String alcance;    // "GENERAL" o "CATEGORIA"
+    private String categoria;  // si alcance es "CATEGORIA"
+    private double valor;      // porcentaje o monto
     private boolean activa;
 
     public Promocion() {}

@@ -26,3 +26,4 @@ public class ItemVenta {
     public double getPrecioUnitario() { return precioUnitario; }
     public void setPrecioUnitario(double precioUnitario) { this.precioUnitario = precioUnitario; }
 }
+
