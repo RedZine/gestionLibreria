@@ -65,7 +65,7 @@ public class Main {
         System.out.print("Stock: "); int stock = leerInt(in);
 
         boolean ok = repo.agregarLibro(id, isbn, titulo, autor, categoria, precio, stock);
-        System.out.println(ok ? "✅ Libro agregado." : "⚠️ Categoría no encontrada.");
+        System.out.println(ok ? "Libro agregado." : "️Categoría no encontrada.");
     }
 
     private static void listarLibros(BufferedReader in) throws IOException {
