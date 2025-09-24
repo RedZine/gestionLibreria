@@ -1,54 +1,43 @@
 package gestionlibreria.repository;
 
+import gestionlibreria.exception.DatoDuplicadoException;
+import gestionlibreria.exception.ElementoNoEncontradoException;
+import gestionlibreria.exception.PersistenciaException;
 import gestionlibreria.model.Categoria;
 import gestionlibreria.model.Libro;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class CategoriaRepository {
-    private final ArrayList<Categoria> categorias = new ArrayList<>();           // 1ª colección
-    private final Map<String, Libro> indiceIsbn = new HashMap<>();               // Map ISBN -> Libro
-    private final Map<String, ArrayList<Libro>> porCategoria = new HashMap<>();  // Map categoria -> libros
+import java.util.List;
+import java.util.Optional;
 
-    // ---- Categorías ----
-    public void agregarCategoria(Categoria c){ categorias.add(c); }
-    public ArrayList<Categoria> listarCategorias(){ return categorias; }
-    public Categoria buscarPorId(int id){
-        for (Categoria c : categorias) if (c.getId()==id) return c;
-        return null;
-    }
+/**
+ * Repositorio que administra la colección principal de categorías
+ * y la colección anidada de libros asociada a cada categoría.
+ */
+public interface CategoriaRepository {
 
-    // ---- Libros (2ª colección anidada) ----
-    // Sobrecarga SIA1.6
-    public boolean agregarLibro(int idCategoria, Libro l){
-        Categoria c = buscarPorId(idCategoria);
-        if (c==null || l==null) return false;
-        c.getLibros().add(l);
-        actualizarIndices(l);
-        return true;
-    }
-    public boolean agregarLibro(int idCategoria, String isbn, String titulo, String autor,
-                                String categoria, double precio, int stock){
-        return agregarLibro(idCategoria, new Libro(isbn,titulo,autor,categoria,precio,stock));
-    }
+    // ---- Categorías (1er nivel) ----
+    List<Categoria> findAllCategorias();
+    Optional<Categoria> findCategoriaById(int id);
+    Optional<Categoria> findCategoriaByNombre(String nombre);
+    Categoria addCategoria(Categoria categoria) throws DatoDuplicadoException;
+    void updateCategoria(Categoria categoria) throws ElementoNoEncontradoException, DatoDuplicadoException;
+    void deleteCategoria(int id) throws ElementoNoEncontradoException;
 
-    public ArrayList<Libro> listarLibrosDeCategoria(int idCategoria){
-        Categoria c = buscarPorId(idCategoria);
-        return (c==null) ? new ArrayList<>() : c.getLibros();
-    }
+    // ---- Libros (2º nivel) ----
+    List<Libro> findLibrosByCategoria(int categoriaId) throws ElementoNoEncontradoException;
+    void addLibro(int categoriaId, Libro libro) throws DatoDuplicadoException, ElementoNoEncontradoException;
+    void updateLibro(int categoriaId, Libro libro) throws ElementoNoEncontradoException;
+    void deleteLibro(int categoriaId, String isbn) throws ElementoNoEncontradoException;
 
-    public Libro buscarLibroPorIsbn(String isbn){ return indiceIsbn.get(isbn); }
+    // ---- Operaciones transversales ----
+    List<Libro> findAllLibros();
+    Optional<Libro> findLibroByIsbn(String isbn);
+    List<Libro> filterLibrosByPrecio(double minimo, double maximo);
+    List<Libro> filterLibrosByCategoria(String categoria);
+    List<Libro> filterLibrosByAutor(String autor);
+    List<Libro> filterLibrosByStock(int stockMinimo, int stockMaximo);
 
-    public ArrayList<Libro> sugerenciasPorCategoria(String categoria, String excluirIsbn){
-        ArrayList<Libro> base = porCategoria.getOrDefault(categoria, new ArrayList<>());
-        ArrayList<Libro> out = new ArrayList<>();
-        for (Libro l : base) if (!l.getIsbn().equals(excluirIsbn)) out.add(l);
-        return out;
-    }
-
-    private void actualizarIndices(Libro l){
-        indiceIsbn.put(l.getIsbn(), l);
-        porCategoria.computeIfAbsent(l.getCategoria(), k -> new ArrayList<>()).add(l);
-    }
+    // ---- Persistencia Batch ----
+    void load() throws PersistenciaException;
+    void save() throws PersistenciaException;
 }

@@ -26,4 +26,13 @@ public class Categoria {
     public void agregarLibro(Libro libro){
         libros.add(libro);
     }
+
+    public boolean eliminarLibroPorIsbn(String isbn){
+        return libros.removeIf(l -> l.getIsbn().equalsIgnoreCase(isbn));
+    }
+
+    @Override
+    public String toString() {
+        return nombre == null ? "" : nombre;
+    }
 }

@@ -7,10 +7,22 @@ public class Libro {
     private String categoria; // sin enum
     private double precio;
     private int stock;
+    private int categoriaId = -1; // referencia a la categoría "padre"
 
     public Libro() {}
+
     public Libro(String isbn, String titulo, String autor, String categoria, double precio, int stock){
-        this.isbn=isbn; this.titulo=titulo; this.autor=autor; this.categoria=categoria; this.precio=precio; this.stock=stock;
+        this(isbn, titulo, autor, categoria, precio, stock, -1);
+    }
+
+    public Libro(String isbn, String titulo, String autor, String categoria, double precio, int stock, int categoriaId){
+        this.isbn=isbn;
+        this.titulo=titulo;
+        this.autor=autor;
+        this.categoria=categoria;
+        this.precio=precio;
+        this.stock=stock;
+        this.categoriaId=categoriaId;
     }
 
     public String getIsbn(){ return isbn; }
@@ -25,4 +37,6 @@ public class Libro {
     public void setPrecio(double precio){ this.precio=precio; }
     public int getStock(){ return stock; }
     public void setStock(int stock){ this.stock=stock; }
+    public int getCategoriaId() { return categoriaId; }
+    public void setCategoriaId(int categoriaId) { this.categoriaId = categoriaId; }
 }
