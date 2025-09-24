@@ -1,0 +1,94 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+title Diagrama de clases principal - Sistema de Gestión Librería
+
+class Categoria {
+  - id : int
+  - nombre : String
+  - libros : List<Libro>
+  + getId()
+  + getNombre()
+  + getLibros()
+}
+
+class Libro {
+  - isbn : String
+  - titulo : String
+  - autor : String
+  - categoria : String
+  - precio : double
+  - stock : int
+  - categoriaId : int
+}
+
+class CategoriaRepository {
+  <<interface>>
+  + findAllCategorias()
+  + addCategoria(c : Categoria)
+  + updateCategoria(c : Categoria)
+  + deleteCategoria(id : int)
+  + findLibrosByCategoria(id : int)
+  + addLibro(id : int, libro : Libro)
+  + updateLibro(id : int, libro : Libro)
+  + deleteLibro(id : int, isbn : String)
+}
+
+class InMemoryCategoriaRepository {
+  - categorias : List<Categoria>
+  - indiceLibros : Map<String, Libro>
+  + addCategoria()
+  + updateCategoria()
+  + addLibro()
+  + updateLibro()
+}
+
+class CsvCategoriaRepository {
+  - categoriasCsv : Path
+  - librosCsv : Path
+  + load()
+  + save()
+}
+
+class LibroRepository {
+  <<interface>>
+  + findAll()
+  + add(libro : Libro)
+  + update(libro : Libro)
+  + deleteByIsbn(isbn : String)
+}
+
+class CategoriaLibroRepository {
+  - categoriaRepository : CategoriaRepository
+  + add(libro : Libro)
+  + update(libro : Libro)
+  + deleteByIsbn(isbn : String)
+}
+
+class BooksPanel {
+  - libroRepository : LibroRepository
+  - categoriaRepository : CategoriaRepository
+}
+
+class CategoriesPanel {
+  - categoriaRepository : CategoriaRepository
+}
+
+class MainWindow {
+  - categoriaRepository : CategoriaRepository
+  - libroRepository : LibroRepository
+}
+
+CategoriaRepository <|.. InMemoryCategoriaRepository
+InMemoryCategoriaRepository <|-- CsvCategoriaRepository
+LibroRepository <|.. CategoriaLibroRepository
+Categoria "1" o-- "*" Libro
+CategoriaLibroRepository --> CategoriaRepository
+BooksPanel --> LibroRepository
+BooksPanel --> CategoriaRepository
+CategoriesPanel --> CategoriaRepository
+MainWindow --> BooksPanel
+MainWindow --> CategoriesPanel
+MainWindow --> LibroRepository
+MainWindow --> CategoriaRepository
+@enduml

@@ -1,7 +1,11 @@
 // src/gestionlibreria/repository/InMemoryLibroRepository.java
 package gestionlibreria.repository;
 
+import gestionlibreria.exception.DatoDuplicadoException;
+import gestionlibreria.exception.ElementoNoEncontradoException;
+import gestionlibreria.exception.PersistenciaException;
 import gestionlibreria.model.Libro;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,29 +29,29 @@ public class InMemoryLibroRepository implements LibroRepository {
     }
 
     @Override
-    public void add(Libro libro) {
+    public void add(Libro libro) throws DatoDuplicadoException {
         if (findByIsbn(libro.getIsbn()).isPresent()) {
-            throw new IllegalArgumentException("ISBN duplicado: " + libro.getIsbn());
+            throw new DatoDuplicadoException("ISBN duplicado: " + libro.getIsbn());
         }
         datos.add(libro);
     }
 
     @Override
-    public void update(Libro libroActualizado) {
+    public void update(Libro libroActualizado) throws ElementoNoEncontradoException {
         for (int i = 0; i < datos.size(); i++) {
             if (datos.get(i).getIsbn().equalsIgnoreCase(libroActualizado.getIsbn())) {
                 datos.set(i, libroActualizado);
                 return;
             }
         }
-        throw new IllegalArgumentException("No existe el ISBN: " + libroActualizado.getIsbn());
+        throw new ElementoNoEncontradoException("No existe el ISBN: " + libroActualizado.getIsbn());
     }
 
     @Override
-    public void deleteByIsbn(String isbn) {
+    public void deleteByIsbn(String isbn) throws ElementoNoEncontradoException {
         boolean eliminado = datos.removeIf(l -> l.getIsbn().equalsIgnoreCase(isbn));
         if (!eliminado) {
-            throw new IllegalArgumentException("No existe el ISBN: " + isbn);
+            throw new ElementoNoEncontradoException("No existe el ISBN: " + isbn);
         }
     }
 
@@ -89,6 +93,18 @@ public class InMemoryLibroRepository implements LibroRepository {
         return resultado;
     }
 
-    @Override public void load() { /* no-op en memoria */ }
-    @Override public void save() { /* no-op en memoria */ }
+    @Override
+    public List<Libro> filterByStock(int stockMinimo, int stockMaximo) {
+        List<Libro> resultado = new ArrayList<>();
+        for (Libro libro : datos) {
+            int stock = libro.getStock();
+            if (stock >= stockMinimo && stock <= stockMaximo) {
+                resultado.add(libro);
+            }
+        }
+        return resultado;
+    }
+
+    @Override public void load() throws PersistenciaException { /* no-op en memoria */ }
+    @Override public void save() throws PersistenciaException { /* no-op en memoria */ }
 }
