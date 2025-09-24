@@ -5,12 +5,14 @@ import java.util.Scanner;
 
 public class MenuPrincipal {
     private final Scanner consola = new Scanner(System.in);
+    private final LibroRepository repositorio; // <-- nuevo
     private final MenuLibros menuLibros;
     private final MenuAutores menuAutores;
 
-    public MenuPrincipal(LibroRepository libroRepo) {
-        this.menuLibros  = new MenuLibros(libroRepo);
-        this.menuAutores = new MenuAutores(libroRepo);
+    public MenuPrincipal(LibroRepository repositorio) {
+        this.repositorio = repositorio;       // <-- nuevo
+        this.menuLibros  = new MenuLibros(repositorio);
+        this.menuAutores = new MenuAutores(repositorio);
     }
 
     public void iniciar() {
@@ -26,8 +28,14 @@ public class MenuPrincipal {
             switch (opcion) {
                 case 1: menuLibros.iniciar();  break;
                 case 2: menuAutores.iniciar(); break;
-                case 0: System.out.println("Hasta luego."); break;
-                default: System.out.println("Opción inválida."); break;
+                case 0:
+                    System.out.println("Guardando datos en CSV...");
+                    repositorio.save(); // <-- aquí verás el mensaje de [CSV] Guardados...
+                    System.out.println("Listo. ¡Hasta luego!");
+                    break;
+                default:
+                    System.out.println("Opción inválida.");
+                    break;
             }
         } while (opcion != 0);
     }
