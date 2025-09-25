@@ -1,13 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
 package gestionlibreria.repository;
 
+import gestionlibreria.model.Venta;
+import gestionlibreria.util.DatoDuplicadoException;
+import gestionlibreria.util.DatoNoEncontradoException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
 /**
- *
- * @author Juaaan
+ * Repositorio encargado de persistir las ventas.
  */
 public interface VentaRepository {
-    
+    void cargar() throws IOException;
+
+    void guardar() throws IOException;
+
+    List<Venta> obtenerTodas();
+
+    Optional<Venta> buscarPorId(String idVenta);
+
+    void agregar(Venta venta) throws DatoDuplicadoException;
+
+    void actualizar(Venta venta) throws DatoNoEncontradoException;
+
+    void eliminar(String idVenta) throws DatoNoEncontradoException;
 }

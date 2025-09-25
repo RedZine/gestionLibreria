@@ -1,14 +1,15 @@
 package gestionlibreria.config;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 /**
- *
- * @author Juaaan
+ * Configuración centralizada de rutas y archivos utilizados por la aplicación.
  */
-public class AppConfig {
-    
+public final class AppConfig {
+    public static final String RUTA_LIBROS = "data/libros.csv";
+    public static final String RUTA_CLIENTES = "data/clientes.csv";
+    public static final String RUTA_VENTAS = "data/ventas.csv";
+    public static final String RUTA_PROMOCIONES = "data/promociones.csv";
+    public static final String RUTA_REPORTE_VENTAS = "reportes/reporte_ventas.txt";
+
+    private AppConfig() {
+    }
 }
