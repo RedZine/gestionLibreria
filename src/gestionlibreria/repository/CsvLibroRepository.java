@@ -12,12 +12,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación basada en archivo CSV para el catálogo de libros.
+ * Implementación del catálogo basada en un archivo CSV.
  */
 public class CsvLibroRepository implements CatalogoRepository {
     private final List<Libro> libros = new ArrayList<>();
 
-    @Override
+    /**
+     * Carga los libros desde el archivo configurado.
+     *
+     * @throws IOException cuando no se puede leer el archivo CSV
+     */
     public void cargar() throws IOException {
         libros.clear();
         List<String> lineas = ArchivoUtil.leerLineas(AppConfig.RUTA_LIBROS);
@@ -47,7 +51,11 @@ public class CsvLibroRepository implements CatalogoRepository {
         }
     }
 
-    @Override
+    /**
+     * Guarda los libros en el archivo CSV.
+     *
+     * @throws IOException cuando no se puede escribir el archivo CSV
+     */
     public void guardar() throws IOException {
         List<String> lineas = new ArrayList<>();
         for (Libro libro : libros) {
@@ -80,9 +88,9 @@ public class CsvLibroRepository implements CatalogoRepository {
     }
 
     @Override
-    public void add(Libro libro) throws DatoObligatorioException {
+    public void add(Libro libro) {
         validarLibro(libro);
-        // Valida que no exista otro libro con el mismo ISBN
+        // Evita duplicar el ISBN en el archivo
         if (buscarPorIsbn(libro.getIsbn()).isPresent()) {
             throw new DatoObligatorioException("ISBN duplicado: " + libro.getIsbn());
         }
@@ -90,13 +98,10 @@ public class CsvLibroRepository implements CatalogoRepository {
     }
 
     @Override
-    public void update(Libro libro) throws EntidadNoEncontradaException {
+    public void update(Libro libro) {
         validarLibro(libro);
-        Optional<Libro> existente = buscarPorIsbn(libro.getIsbn());
-        if (existente.isEmpty()) {
-            throw new EntidadNoEncontradaException("No existe el ISBN: " + libro.getIsbn());
-        }
-        Libro original = existente.get();
+        Libro original = buscarPorIsbn(libro.getIsbn())
+                .orElseThrow(() -> new EntidadNoEncontradaException("No existe el ISBN: " + libro.getIsbn()));
         original.setTitulo(libro.getTitulo());
         original.setAutor(libro.getAutor());
         original.setCategoria(libro.getCategoria());
@@ -110,51 +115,40 @@ public class CsvLibroRepository implements CatalogoRepository {
     }
 
     @Override
-    public void deleteByIsbn(String isbn) throws EntidadNoEncontradaException {
+    public void deleteByIsbn(String isbn) {
         validarIsbn(isbn);
-        Optional<Libro> existente = buscarPorIsbn(isbn);
-        if (existente.isEmpty()) {
-            throw new EntidadNoEncontradaException("No existe el ISBN: " + isbn);
-        }
-        libros.remove(existente.get());
-    }
-
-    @Override
-    public List<Libro> filtrarPorPrecio(double minimo, double maximo) {
-        List<Libro> filtrados = new ArrayList<>();
-        for (Libro libro : libros) {
-            if (libro.getPrecio() >= minimo && libro.getPrecio() <= maximo) {
-                filtrados.add(libro);
-            }
-        }
-        return filtrados;
+        Libro original = buscarPorIsbn(isbn)
+                .orElseThrow(() -> new EntidadNoEncontradaException("No existe el ISBN: " + isbn));
+        libros.remove(original);
     }
 
     private void validarLibro(Libro libro) {
-        // Valida que el ISBN no esté vacío
+        if (libro == null) {
+            throw new DatoObligatorioException("El libro es obligatorio.");
+        }
+        // Comprueba que el ISBN sea obligatorio
         if (libro.getIsbn() == null || libro.getIsbn().isBlank()) {
             throw new DatoObligatorioException("El ISBN es obligatorio.");
         }
-        // Valida que el título no esté vacío
+        // Comprueba que el título sea obligatorio
         if (libro.getTitulo() == null || libro.getTitulo().isBlank()) {
             throw new DatoObligatorioException("El título es obligatorio.");
         }
-        // Valida que el autor no esté vacío
+        // Comprueba que el autor sea obligatorio
         if (libro.getAutor() == null || libro.getAutor().isBlank()) {
             throw new DatoObligatorioException("El autor es obligatorio.");
         }
-        // Valida que el precio no sea negativo
+        // Comprueba que el precio no sea negativo
         if (libro.getPrecio() < 0) {
             throw new DatoObligatorioException("El precio no puede ser negativo.");
         }
-        // Valida que el stock no sea negativo
+        // Comprueba que el stock no sea negativo
         if (libro.getStock() < 0) {
             throw new DatoObligatorioException("El stock no puede ser negativo.");
         }
     }
 
     private void validarIsbn(String isbn) {
-        // Valida que el ISBN recibido no esté vacío
         if (isbn == null || isbn.isBlank()) {
             throw new DatoObligatorioException("El ISBN es obligatorio.");
         }

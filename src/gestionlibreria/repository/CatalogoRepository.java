@@ -1,29 +1,47 @@
 package gestionlibreria.repository;
 
 import gestionlibreria.model.Libro;
-import gestionlibreria.util.DatoObligatorioException;
-import gestionlibreria.util.EntidadNoEncontradaException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Define las operaciones de acceso a los libros del catálogo.
+ * Define las operaciones esenciales para administrar el catálogo de libros.
  */
 public interface CatalogoRepository {
-    void cargar() throws IOException;
 
-    void guardar() throws IOException;
-
+    /**
+     * Recupera todos los libros almacenados.
+     *
+     * @return lista con todos los libros disponibles
+     */
     List<Libro> obtenerTodos();
 
+    /**
+     * Busca un libro utilizando su ISBN.
+     *
+     * @param isbn código del libro a buscar
+     * @return libro encontrado o vacío cuando no existe
+     */
     Optional<Libro> buscarPorIsbn(String isbn);
 
-    void add(Libro libro) throws DatoObligatorioException;
+    /**
+     * Registra un nuevo libro en el catálogo.
+     *
+     * @param libro libro a agregar
+     */
+    void add(Libro libro);
 
-    void update(Libro libro) throws EntidadNoEncontradaException;
+    /**
+     * Actualiza los datos de un libro existente.
+     *
+     * @param libro libro con la información actualizada
+     */
+    void update(Libro libro);
 
-    void deleteByIsbn(String isbn) throws EntidadNoEncontradaException;
-
-    List<Libro> filtrarPorPrecio(double minimo, double maximo);
+    /**
+     * Elimina un libro del catálogo por su ISBN.
+     *
+     * @param isbn código del libro a eliminar
+     */
+    void deleteByIsbn(String isbn);
 }
