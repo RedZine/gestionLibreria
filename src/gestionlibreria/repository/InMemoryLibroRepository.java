@@ -1,15 +1,18 @@
-// src/gestionlibreria/repository/InMemoryLibroRepository.java
+
 package gestionlibreria.repository;
 
-import gestionlibreria.exception.DatoDuplicadoException;
-import gestionlibreria.exception.ElementoNoEncontradoException;
-import gestionlibreria.exception.PersistenciaException;
 import gestionlibreria.model.Libro;
+import gestionlibreria.util.DatoObligatorioException;
+import gestionlibreria.util.EntidadNoEncontradaException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositorio de libros en memoria.
+ * Cumple validaciones de negocio y lanza excepciones específicas.
+ */
 public class InMemoryLibroRepository implements LibroRepository {
     private final List<Libro> datos = new ArrayList<>();
 
@@ -28,30 +31,46 @@ public class InMemoryLibroRepository implements LibroRepository {
         return Optional.empty();
     }
 
+    /** Valida campos obligatorios y reglas simples del negocio. */
+    private void validar(Libro libro) {
+        if (libro == null) throw new DatoObligatorioException("El libro es obligatorio.");
+        if (libro.getIsbn() == null || libro.getIsbn().trim().isEmpty())
+            throw new DatoObligatorioException("El ISBN es obligatorio.");
+        if (libro.getTitulo() == null || libro.getTitulo().trim().isEmpty())
+            throw new DatoObligatorioException("El título es obligatorio.");
+        if (libro.getAutor() == null || libro.getAutor().trim().isEmpty())
+            throw new DatoObligatorioException("El autor es obligatorio.");
+        if (libro.getPrecio() < 0)
+            throw new DatoObligatorioException("El precio no puede ser negativo.");
+        if (libro.getStock() < 0)
+            throw new DatoObligatorioException("El stock no puede ser negativo.");
+    }
+
     @Override
-    public void add(Libro libro) throws DatoDuplicadoException {
-        if (findByIsbn(libro.getIsbn()).isPresent()) {
-            throw new DatoDuplicadoException("ISBN duplicado: " + libro.getIsbn());
-        }
+    public void add(Libro libro) {
+        validar(libro);
+        if (findByIsbn(libro.getIsbn()).isPresent())
+            throw new DatoObligatorioException("ISBN duplicado: " + libro.getIsbn());
         datos.add(libro);
     }
 
     @Override
-    public void update(Libro libroActualizado) throws ElementoNoEncontradoException {
+    public void update(Libro libroActualizado) {
+        validar(libroActualizado);
         for (int i = 0; i < datos.size(); i++) {
             if (datos.get(i).getIsbn().equalsIgnoreCase(libroActualizado.getIsbn())) {
                 datos.set(i, libroActualizado);
                 return;
             }
         }
-        throw new ElementoNoEncontradoException("No existe el ISBN: " + libroActualizado.getIsbn());
+        throw new EntidadNoEncontradaException("No existe el ISBN: " + libroActualizado.getIsbn());
     }
 
     @Override
-    public void deleteByIsbn(String isbn) throws ElementoNoEncontradoException {
+    public void deleteByIsbn(String isbn) {
         boolean eliminado = datos.removeIf(l -> l.getIsbn().equalsIgnoreCase(isbn));
         if (!eliminado) {
-            throw new ElementoNoEncontradoException("No existe el ISBN: " + isbn);
+            throw new EntidadNoEncontradaException("No existe el ISBN: " + isbn);
         }
     }
 
@@ -92,19 +111,26 @@ public class InMemoryLibroRepository implements LibroRepository {
         }
         return resultado;
     }
-
+    
     @Override
-    public List<Libro> filterByStock(int stockMinimo, int stockMaximo) {
-        List<Libro> resultado = new ArrayList<>();
-        for (Libro libro : datos) {
-            int stock = libro.getStock();
-            if (stock >= stockMinimo && stock <= stockMaximo) {
-                resultado.add(libro);
-            }
-        }
-        return resultado;
-    }
+public List<Libro> filterByStock(int minimo, int maximo) {
+    int desde = Math.min(minimo, maximo);
+    int hasta = Math.max(minimo, maximo);
 
-    @Override public void load() throws PersistenciaException { /* no-op en memoria */ }
-    @Override public void save() throws PersistenciaException { /* no-op en memoria */ }
+    List<Libro> resultado = new ArrayList<>();
+    for (Libro l : datos) {
+        int s = l.getStock();
+        if (s >= desde && s <= hasta) {
+            resultado.add(l);
+        }
+    }
+    return resultado;
+}
+
+
+    @Override public void load() { /* no-op en memoria */ }
+    @Override public void save() { /* no-op en memoria */ }
+
+
+    
 }
