@@ -36,12 +36,35 @@ public class CategoriaLibroRepository implements LibroRepository {
         int categoriaId = obtenerCategoriaId(libro);
         categoriaRepository.addLibro(categoriaId, libro);
     }
-
     @Override
     public void update(Libro libro) throws ElementoNoEncontradoException {
-        int categoriaId = obtenerCategoriaId(libro);
-        categoriaRepository.updateLibro(categoriaId, libro);
-    }
+    // Resuelve y normaliza la categoría indicada en el formulario
+        int nuevaCategoriaId = obtenerCategoriaId(libro);
+
+    // Busca el libro existente por ISBN para saber su categoría actual
+        Libro existente = categoriaRepository.findLibroByIsbn(libro.getIsbn())
+            .orElseThrow(() -> new ElementoNoEncontradoException("No existe el ISBN: " + libro.getIsbn()));
+
+        int categoriaActualId = existente.getCategoriaId();
+
+        if (categoriaActualId != nuevaCategoriaId) {
+        // Si cambió la categoría, hacemos un "mover": borrar del viejo y agregar al nuevo
+            try {
+            categoriaRepository.deleteLibro(categoriaActualId, existente.getIsbn());
+            categoriaRepository.addLibro(nuevaCategoriaId, libro);
+            } catch (DatoDuplicadoException e) {
+            // En teoría no debería pasar si el ISBN es único; propagamos como 404 lógico
+                throw new ElementoNoEncontradoException(e.getMessage());
+            }
+        }else {
+        // Si la categoría no cambió, actualizamos en la misma
+            categoriaRepository.updateLibro(nuevaCategoriaId, libro);
+        }
+}
+    
+    
+    
+
 
     @Override
     public void deleteByIsbn(String isbn) throws ElementoNoEncontradoException {

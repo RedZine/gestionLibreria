@@ -1,0 +1,9 @@
+Reporte generado el 2025-09-23 22:42
+----------------------------------------------------
+ISBN            Título                         Autor                Categoría       Precio   Stock 
+9780001         Duna                           Frank Herbert        Ficción         15990,00      8
+9780002         Neuromante                     William Gibson       Ficción         13990,00      6
+9781001         Clean Code                     Robert C. Martin     Tecnología      32990,00      5
+9781002         Estructuras de Datos           Weiss                Tecnología      28990,00      4
+9782001         El Principito                  Saint-Exupéry        Infantil         9990,00     12
+121212          Te amo Milla                   Juan                 Amor            200000,00    100
