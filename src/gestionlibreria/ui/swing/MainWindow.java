@@ -2,7 +2,11 @@ package gestionlibreria.ui.swing;
 
 import gestionlibreria.exception.PersistenciaException;
 import gestionlibreria.repository.CategoriaRepository;
+import gestionlibreria.repository.ClienteRepository;
+import gestionlibreria.repository.InMemoryClienteRepository;
+import gestionlibreria.repository.InMemoryVentaRepository;
 import gestionlibreria.repository.LibroRepository;
+import gestionlibreria.repository.VentaRepository;
 import gestionlibreria.util.reporte.LibroReportGenerator;
 
 import javax.swing.*;
@@ -14,11 +18,18 @@ import java.nio.file.Path;
 public class MainWindow extends JFrame {
     private final CategoriaRepository categoriaRepository;
     private final LibroRepository libroRepository;
+    private final ClienteRepository clienteRepository;
+    private final VentaRepository ventaRepository;
 
     public MainWindow(CategoriaRepository categoriaRepository, LibroRepository libroRepository) {
         super("Sistema de Información - Librería");
         this.categoriaRepository = categoriaRepository;
         this.libroRepository = libroRepository;
+        
+        // Inicializar repositorios de ventas y clientes
+        this.clienteRepository = new InMemoryClienteRepository();
+        this.ventaRepository = new InMemoryVentaRepository(clienteRepository);
+        
         inicializar();
     }
 
@@ -31,6 +42,7 @@ public class MainWindow extends JFrame {
         JTabbedPane pestañas = new JTabbedPane();
         pestañas.addTab("Libros", new BooksPanel(libroRepository, categoriaRepository));
         pestañas.addTab("Categorías", new CategoriesPanel(categoriaRepository));
+        pestañas.addTab("Ventas", new VentasPanel(ventaRepository, libroRepository, clienteRepository));
         add(pestañas, BorderLayout.CENTER);
 
         setJMenuBar(crearMenu());
@@ -83,6 +95,8 @@ public class MainWindow extends JFrame {
     private void guardarDatos() {
         try {
             libroRepository.save();
+            clienteRepository.save();
+            ventaRepository.save();
         } catch (PersistenciaException e) {
             JOptionPane.showMessageDialog(this, "Error al guardar: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

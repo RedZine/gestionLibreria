@@ -49,4 +49,10 @@ public class Venta {
 
     public ArrayList<ItemVenta> getItems() { return items; }
     public void setItems(ArrayList<ItemVenta> items) { this.items = items; }
+    public int getCantidadItems() {
+    return (items == null) ? 0 : items.size();
 }
+    
+    
+}
+

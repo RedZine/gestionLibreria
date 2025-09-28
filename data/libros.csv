@@ -4,4 +4,4 @@ categoriaId;isbn;titulo;autor;categoria;precio;stock
 2;9781001;Clean Code;Robert C. Martin;Tecnología;32990;5
 2;9781002;Estructuras de Datos;Weiss;Tecnología;28990;4
 3;9782001;El Principito;Saint-Exupéry;Infantil;9990;12
-4;121212;Te amo Juan;Milla;Amor;2000;5
+4;121212;Te amo Juan;Milla;Amor;2000;3
